@@ -4,6 +4,19 @@ K = 1  # диэлектрическая постоянная
 PHI = 4.5  # Локальный выход электронов
 EF = 5.71  # Уровень Ферми
 N = 1000
+MAX_RND = 32767
+SEED = 65539
+
+
+class RndMultiCmpGenerator:
+    def __init__(self, x):
+        self.x = x
+        self.m = 32767  # 2147483647
+        self.a = 65539
+
+    def next(self):
+        self.x = (self.a * self.x) % self.m
+        return self.x
 
 
 def calculate_j(x, y, z, u):
@@ -26,9 +39,26 @@ def calculate_phi_of_z(z, s1, s2, u):
     return result
 
 
-def monte_carlo_method():
-    pass
+def monte_carlo_method(xl, xh, yl, yh, z, u, random):
+    a = [xl, yl]
+    b = [xh, yh]
+    integral = 0.0
+    v = (xh - xl)*(yh - yl)
+    x_buff = [0.0, 0.0]
+    flag = True
+    for i in range(N):
+        for j in range(2):
+            x_buff[j] = a[j] + (b[j] - a[j]) * random[i][j]
+        flag = True
+        for j in range(2):
+            if (x_buff[j] < a[j]) and (x_buff[j] > b[j]):
+                flag = False
+        if flag:
+            integral = calculate_j(x_buff[0], x_buff[1], z, u)
+    integral = (integral * v) / N
+    return integral
 
 
 if __name__ == '__main__':
-    print(calculate_j(2, 2, 2, 0.01))
+    random_generator = RndMultiCmpGenerator(SEED)
+    random_values = [[random_generator.next() / MAX_RND for x in range(2)] for y in range(N)]
