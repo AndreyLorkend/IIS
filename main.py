@@ -1,4 +1,5 @@
 import math
+import matplotlib.pyplot as plt
 
 K = 1  # диэлектрическая постоянная
 PHI = 4.5  # Локальный выход электронов
@@ -6,8 +7,19 @@ EF = 5.71  # Уровень Ферми
 N = 1000
 MAX_RND = 32767
 SEED = 65539
+coordinates = [
+    {"x": 0, "y": 0},
+    {"x": 10, "y": 0},
+    {"x": 10, "y": 5},
+    {"x": 17, "y": 5},
+    {"x": 20, "y": 0},
+    {"x": 22, "y": 0},
+    {"x": 28, "y": 10},
+    {"x": 38, "y": 10}
+]
 
 
+# Генератор случайных чисел (метод мультипликативного сравнения)
 class RndMultiCmpGenerator:
     def __init__(self, x):
         self.x = x
@@ -39,13 +51,13 @@ def calculate_phi_of_z(z, s1, s2, u):
     return result
 
 
+# нахождение интеграла методом Монте-Карло
 def monte_carlo_method(xl, xh, yl, yh, z, u, random):
     a = [xl, yl]
     b = [xh, yh]
     integral = 0.0
     v = (xh - xl)*(yh - yl)
     x_buff = [0.0, 0.0]
-    flag = True
     for i in range(N):
         for j in range(2):
             x_buff[j] = a[j] + (b[j] - a[j]) * random[i][j]
@@ -59,6 +71,15 @@ def monte_carlo_method(xl, xh, yl, yh, z, u, random):
     return integral
 
 
+def draw_area(points):
+    fig = plt.figure()
+    grid1 = plt.grid(True)
+    for i in range(len(points)-1):
+        graph = plt.plot([points[i]["x"], points[i+1]["x"]], [points[i]["y"], points[i+1]["y"]])
+    plt.show()
+
+
 if __name__ == '__main__':
     random_generator = RndMultiCmpGenerator(SEED)
     random_values = [[random_generator.next() / MAX_RND for x in range(2)] for y in range(N)]
+    draw_area(coordinates)
